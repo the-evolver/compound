@@ -15,7 +15,7 @@ A calm, honest daily tracker for a long-term plan. An installable web app that w
 
 A plan file (`.compound.json`) is a whole plan as data: areas, phases, checkpoints, habits with their if-then plans and rollout dates, study subjects and topics, workout templates and to-dos. Load one during setup (**Load a plan file**). It asks for the start date and, if the plan needs them, your weight and workout days, then builds the plan with dates relative to your start. The format is defined in `src/seed/template.ts`; `tests/fixtures/sample-plan.compound.json` is a neutral example.
 
-Keep your own plan file private (here it lives in `private/`, excluded from git via `.git/info/exclude`). Send it to your phone, e.g. through Google Drive, and load it there.
+Keep your own plan file private. Here it lives in `private/`, which this repository ignores: that folder is a separate private repository (with its own README on setting up a new computer). Send the plan file to your phone, e.g. through Google Drive, and load it there.
 
 ## What's in it
 

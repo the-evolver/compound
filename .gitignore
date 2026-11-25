@@ -7,3 +7,8 @@ playwright-report/
 *.local
 .DS_Store
 Thumbs.db
+
+# Personal files never belong here: they live in a separate private
+# repository, cloned into private/ (see the README there).
+/private/
+/compound-app-prompt.md
