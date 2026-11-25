@@ -8,8 +8,10 @@ import {
   forgetSession,
   hasLegacyData,
   listAccounts,
+  makeRecoveryCode,
   migrateLegacyInto,
   openAccountDb,
+  recoverAccount,
   rememberSession,
   restoreSession,
   unlockAccount,
@@ -18,6 +20,8 @@ import {
 import { accountDbName, LEGACY_DB_NAME, openDb } from './db'
 import { encryptionMiddleware } from './encryption'
 import { storesAt } from './versions'
+import { buildBackup, openSealedBackup, sealBackup } from './backup'
+import { canonicalRecoveryCode, newRecoveryCode } from '../platform/crypto'
 
 const FAST = 1000 // test-only PBKDF2 iterations
 
@@ -169,5 +173,66 @@ describe('accounts', () => {
     expect(JSON.stringify(await rawRows(accountDbName(account.id), 'habits'))).not.toContain('Secret')
     expect(await hasLegacyData()).toBe(false)
     db.close()
+  })
+})
+
+describe('recovery codes', () => {
+  it('look like five groups of five and survive sloppy typing', () => {
+    const code = newRecoveryCode()
+    expect(code).toMatch(/^[0-9A-HJKMNP-TV-Z]{5}(-[0-9A-HJKMNP-TV-Z]{5}){4}$/)
+    expect(newRecoveryCode()).not.toBe(code)
+    expect(canonicalRecoveryCode(` ${code.toLowerCase().replace(/-/g, ' ')} `)).toBe(code.replace(/-/g, ''))
+    expect(canonicalRecoveryCode('O0IL1-00000-00000-00000-00000')).toBe('0011100000000000000000000')
+    expect(canonicalRecoveryCode('too short')).toBeNull()
+    expect(canonicalRecoveryCode('UUUUU-00000-00000-00000-00000')).toBeNull()
+  })
+
+  it('reset a forgotten password; the data and the code keep working', async () => {
+    const { account, key, recoveryCode } = await createAccount('alex', 'forgotten password', FAST)
+    expect(account.recovery).toBeDefined()
+    await expect(recoverAccount('alex', 'AAAAA-AAAAA-AAAAA-AAAAA-AAAAA', 'new password 1')).rejects.toThrow('Wrong recovery code.')
+    await expect(recoverAccount('alex', 'nope', 'new password 1')).rejects.toThrow(/25 letters and numbers/)
+    await expect(recoverAccount('sam', recoveryCode, 'new password 1')).rejects.toThrow(/No account/)
+
+    const recovered = await recoverAccount('ALEX', recoveryCode.toLowerCase(), 'new password 1')
+    expect(recovered.key).toEqual(key)
+    await expect(unlockAccount('alex', 'forgotten password')).rejects.toThrow('Wrong password.')
+    expect((await unlockAccount('alex', 'new password 1')).key).toEqual(key)
+    // The same code still works for a second reset.
+    expect((await recoverAccount('alex', recoveryCode, 'new password 2')).key).toEqual(key)
+  })
+
+  it('a new code needs the password and replaces the old one', async () => {
+    const { account, key, recoveryCode: first } = await createAccount('alex', 'right password', FAST)
+    await expect(makeRecoveryCode(account.id, 'wrong password')).rejects.toThrow('Wrong password.')
+    const second = await makeRecoveryCode(account.id, 'right password')
+    expect(second).not.toBe(first)
+    await expect(recoverAccount('alex', first, 'new password 1')).rejects.toThrow('Wrong recovery code.')
+    expect((await recoverAccount('alex', second, 'new password 1')).key).toEqual(key)
+  })
+
+  it('accounts from before recovery codes still open, and say they have none', async () => {
+    const { account } = await createAccount('alex', 'right password', FAST)
+    const raw = new Dexie('compound-accounts')
+    await raw.open()
+    await raw.table('accounts').update(account.id, { recovery: undefined })
+    raw.close()
+    expect((await unlockAccount('alex', 'right password')).account.recovery).toBeUndefined()
+    await expect(recoverAccount('alex', newRecoveryCode(), 'new password 1')).rejects.toThrow(/no recovery code/)
+  })
+
+  it('open encrypted backups too, and nothing else does', async () => {
+    const { account, key, recoveryCode } = await createAccount('alex', 'right password', FAST)
+    const sealed = sealBackup(await buildBackup(1_800_000_000_000), account, key)
+    const viaCode = JSON.parse(await openSealedBackup(sealed, recoveryCode.toLowerCase()))
+    const viaPassword = JSON.parse(await openSealedBackup(sealed, 'right password'))
+    expect(viaCode).toEqual(viaPassword)
+    expect(viaCode.exportedAt).toBe(1_800_000_000_000)
+    await expect(openSealedBackup(sealed, newRecoveryCode())).rejects.toThrow(/Wrong password or recovery code/)
+    await expect(openSealedBackup(sealed, 'wrong password')).rejects.toThrow(/Wrong password or recovery code/)
+    // A backup from before recovery codes (no recovery lock) still opens with the password.
+    const old = JSON.parse(sealed)
+    delete old.recoveryLock
+    expect(JSON.parse(await openSealedBackup(JSON.stringify(old), 'right password'))).toEqual(viaPassword)
   })
 })

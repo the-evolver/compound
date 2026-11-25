@@ -122,7 +122,7 @@ test('4: a logged problem is reviewed the next day; Failed brings it back the da
 test('7: export JSON → reset → import gives back identical data (and the file is encrypted)', async ({ page }) => {
   // Force the download path (headless Chrome has no real share sheet).
   await page.addInitScript(() => Object.defineProperty(navigator, 'canShare', { value: undefined, configurable: true }))
-  await onboard(page)
+  const recoveryCode = await onboard(page)
   await setDay(page, '2026-12-02')
   await markAllDone(page)
   await page.getByPlaceholder('One line about today (optional)').fill('A good first Wednesday')
@@ -142,10 +142,11 @@ test('7: export JSON → reset → import gives back identical data (and the fil
   const chooser = page.waitForEvent('filechooser')
   await page.getByRole('button', { name: 'Restore from a backup file' }).click()
   await (await chooser).setFiles({ name: 'backup.json', mimeType: 'application/json', buffer: Buffer.from(before.text) })
-  await page.getByLabel('Backup password').fill('wrong password')
+  await page.getByLabel('Password or recovery code').fill('wrong password')
   await page.getByRole('button', { name: 'Unlock backup' }).click()
-  await expect(page.getByText(/Wrong password for this backup/)).toBeVisible()
-  await page.getByLabel('Backup password').fill(PASSWORD)
+  await expect(page.getByText(/Wrong password or recovery code for this backup/)).toBeVisible()
+  // The recovery code opens it too (the password does as well: see the unit tests).
+  await page.getByLabel('Password or recovery code').fill(recoveryCode)
   await page.getByRole('button', { name: 'Unlock backup' }).click()
   await page.getByRole('dialog').getByRole('button', { name: 'Restore' }).click()
   await expect(page.getByRole('navigation', { name: 'Main' })).toBeVisible()

@@ -5,7 +5,7 @@ import { useAppData } from '../../app/AppData'
 import { deleteSession, saveSession } from '../../db/actions/bodySkinVoice'
 import { db } from '../../db/db'
 import { formatDay } from '../../domain/time/day'
-import { lastSetsFor, prefillSets, progression } from '../../domain/workouts'
+import { lastSetsFor, loggedSets, prefillSets, progression } from '../../domain/workouts'
 import type { Exercise, WorkoutSession, WorkoutSet, WorkoutTemplate } from '../../model/body'
 import { Segmented } from '../../ui/fields'
 import { Icon } from '../../ui/icons'
@@ -56,21 +56,30 @@ function ExerciseBlock({
           )}
         </div>
       )}
-      <ol className="space-y-2">
+      {/* Units once as column headings, so each number has room on a phone (e.g. 102.5). */}
+      <div className="flex gap-2 text-xs text-faint" aria-hidden="true">
+        <span className="w-7 shrink-0">Set</span>
+        <span className="flex-1 text-center">{seconds ? 'Seconds' : 'Reps'}</span>
+        {!exercise.bodyweight && <span className="flex-1 text-center">kg</span>}
+      </div>
+      <ol className="!mt-1 space-y-2">
         {entry.sets.map((s, i) => (
           <li key={i} className="flex items-center gap-2">
-            <span className="w-10 shrink-0 text-sm text-faint">Set {i + 1}</span>
+            <span className="w-7 shrink-0 text-sm text-faint">{i + 1}</span>
             <div className="min-w-0 flex-1">
-              <Stepper size="sm" label={`Set ${i + 1} ${seconds ? 'seconds' : 'reps'}`} value={s.reps} step={seconds ? 5 : 1} min={0} max={seconds ? 600 : 100} unit={seconds ? 's' : 'reps'} onChange={(v) => setAt(i, { reps: v ?? 0 })} />
+              <Stepper size="sm" showUnit={false} label={`Set ${i + 1} ${seconds ? 'seconds' : 'reps'}`} value={s.reps} step={seconds ? 5 : 1} min={0} max={seconds ? 600 : 100} unit={seconds ? 's' : 'reps'} onChange={(v) => setAt(i, { reps: v ?? 0 })} />
             </div>
             {!exercise.bodyweight && (
               <div className="min-w-0 flex-1">
-                <Stepper size="sm" label={`Set ${i + 1} weight`} value={s.kg} step={2.5} min={0} max={400} decimals={1} unit="kg" onChange={(v) => setAt(i, { kg: v ?? 0 })} />
+                <Stepper size="sm" showUnit={false} label={`Set ${i + 1} weight`} value={s.kg} step={2.5} min={0} max={400} decimals={1} unit="kg" onChange={(v) => setAt(i, { kg: v ?? 0 })} />
               </div>
             )}
           </li>
         ))}
       </ol>
+      {!exercise.bodyweight && entry.sets.some((s) => s.kg === 0) && (
+        <p className="text-xs text-faint">Sets left at 0 kg aren't saved: enter the weight you lifted.</p>
+      )}
       <div className="flex gap-2">
         <Button size="sm" variant="outline" onClick={() => onChange([...entry.sets, entry.sets.at(-1) ?? { reps: exercise.repMin, kg: 0 }])}>
           <Icon name="plus" size={16} /> Set
@@ -112,7 +121,11 @@ function SessionForm({
   const day = session?.day ?? today
 
   const save = async () => {
-    await saveSession({ id: session?.id, day, templateId: session?.templateId ?? template?.id, location, entries })
+    const logged = entries.map((e) => {
+      const ex = exercises.get(e.exerciseId)
+      return ex ? { ...e, sets: loggedSets(ex, e.sets) } : e
+    })
+    await saveSession({ id: session?.id, day, templateId: session?.templateId ?? template?.id, location, entries: logged })
     navigate(-1)
   }
 

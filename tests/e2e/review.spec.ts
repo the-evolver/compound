@@ -1,7 +1,9 @@
 import { expect, test } from '@playwright/test'
 import { onboard, setDay } from './helpers'
 
-test('acceptance 6: a finished weekly review puts its commitments on Today the next day', async ({ page }) => {
+test('acceptance 6: a finished weekly review puts its commitments on Today the next day, and ends with a one-tap backup', async ({ page }) => {
+  // Force the download path (headless Chrome has no real share sheet).
+  await page.addInitScript(() => Object.defineProperty(navigator, 'canShare', { value: undefined, configurable: true }))
   await onboard(page)
   await setDay(page, '2026-12-06', '19:00') // first Sunday of the plan
 
@@ -33,6 +35,13 @@ test('acceptance 6: a finished weekly review puts its commitments on Today the n
   await expect(summary).toContainText('Compound weekly review · 30 Nov – 6 Dec')
   await expect(summary).toContainText('• DSA on two weekdays (energy)')
   await expect(summary).toContainText('• Career: 10 DSA items, reviews first')
+
+  // The last step: back up the week with one tap.
+  await expect(page.getByText(/^No backup yet\. Save the encrypted file/)).toBeVisible()
+  const download = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Back up now' }).click()
+  expect((await download).suggestedFilename()).toBe('compound-backup-2026-12-06.json')
+  await expect(page.getByText('Backed up today.')).toBeVisible()
 
   // Next day: commitments on Today, banner gone.
   await setDay(page, '2026-12-07')

@@ -27,10 +27,10 @@ export default function LineTrendImpl({ data, series, yDomain, yTicks, height = 
       )}
       <div style={{ height }}>
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 8, right: 12, bottom: 0, left: -16 }}>
+          <LineChart data={data} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
             <CartesianGrid vertical={false} stroke={colors.line} />
             <XAxis dataKey="label" tick={{ fill: colors.faint, fontSize: 12 }} tickLine={false} axisLine={false} minTickGap={16} />
-            <YAxis domain={yDomain} ticks={yTicks} tick={{ fill: colors.faint, fontSize: 12 }} tickLine={false} axisLine={false} width={40} />
+            <YAxis domain={yDomain} ticks={yTicks} tick={{ fill: colors.faint, fontSize: 12 }} tickLine={false} axisLine={false} width={44} />
             <Tooltip
               cursor={{ stroke: colors.faint, strokeWidth: 1 }}
               contentStyle={{ background: colors['surface-2'], border: `1px solid ${colors.line}`, borderRadius: 12, color: colors.text, fontSize: 13 }}

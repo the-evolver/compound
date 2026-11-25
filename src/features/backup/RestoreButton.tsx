@@ -105,10 +105,14 @@ export function RestoreButton({ className, variant = 'secondary', hasData }: { c
               void unlock()
             }}
           >
-            <p className="text-sm text-muted">Enter the password of the account this backup came from (the password it had when the backup was made).</p>
+            <p className="text-sm text-muted">
+              Enter the password of the account this backup came from (the password it had when the backup was made), or that account's recovery
+              code.
+            </p>
             <input
               type="password"
-              aria-label="Backup password"
+              aria-label="Password or recovery code"
+              placeholder="Password or recovery code"
               autoComplete="current-password"
               className={`${inputClass} mt-3`}
               value={password}

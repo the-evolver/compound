@@ -5,6 +5,7 @@ import { AuthGate } from './Auth'
 import { Layout } from './Layout'
 import { SCREENS } from './screens'
 import { UpdatePrompt } from './UpdatePrompt'
+import { ErrorBoundary } from './ErrorBoundary'
 
 function Routed() {
   const { settings } = useAppData()
@@ -28,11 +29,13 @@ export function App() {
     <>
       {/* Registered before login, so the app works offline from the first visit. */}
       <UpdatePrompt />
-      <AuthGate>
-        <AppDataProvider>
-          <Routed />
-        </AppDataProvider>
-      </AuthGate>
+      <ErrorBoundary>
+        <AuthGate>
+          <AppDataProvider>
+            <Routed />
+          </AppDataProvider>
+        </AuthGate>
+      </ErrorBoundary>
     </>
   )
 }

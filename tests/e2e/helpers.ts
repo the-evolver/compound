@@ -12,15 +12,21 @@ export async function setDay(page: Page, day: string, time = '10:00'): Promise<v
   await page.reload()
 }
 
-/** Creates an account on the sign-up screen. */
-export async function signUp(page: Page, username: string, opts: { password?: string; remember?: boolean } = {}): Promise<void> {
+/** Creates an account, saves its recovery code (returned) and lands on plan setup. */
+export async function signUp(page: Page, username: string, opts: { password?: string; remember?: boolean } = {}): Promise<string> {
   await page.getByRole('radio', { name: 'Create account' }).click()
   await page.getByLabel('Username').fill(username)
   await page.getByLabel(/^Password \(at least/).fill(opts.password ?? PASSWORD)
   await page.getByLabel('Password again').fill(opts.password ?? PASSWORD)
   if (opts.remember === false) await page.getByLabel(/Keep me logged in/).uncheck()
   await page.getByRole('button', { name: 'Create account' }).click()
+  await expect(page.getByRole('heading', { name: 'Save your recovery code' })).toBeVisible()
+  const code = (await page.getByTestId('recovery-code').textContent())!.trim()
+  await expect(page.getByRole('button', { name: 'Continue' })).toBeDisabled()
+  await page.getByLabel(/saved my recovery code/).check()
+  await page.getByRole('button', { name: 'Continue' }).click()
   await expect(page.getByRole('heading', { name: 'Set up your plan' })).toBeVisible()
+  return code
 }
 
 export async function logIn(page: Page, username: string, password = PASSWORD): Promise<void> {
@@ -30,11 +36,11 @@ export async function logIn(page: Page, username: string, password = PASSWORD): 
   await page.getByRole('button', { name: 'Log in' }).click()
 }
 
-/** Signs up and completes onboarding with the sample plan file. The plan starts 1 Dec 2026. */
-export async function onboard(page: Page, opts: { today?: string; weight?: string; username?: string } = {}): Promise<void> {
+/** Signs up and completes onboarding with the sample plan file (the plan starts 1 Dec 2026). Returns the recovery code. */
+export async function onboard(page: Page, opts: { today?: string; weight?: string; username?: string } = {}): Promise<string> {
   await page.clock.setFixedTime(new Date(`${opts.today ?? '2026-11-28'}T10:00:00+05:30`))
   await page.goto('/')
-  await signUp(page, opts.username ?? 'tester')
+  const code = await signUp(page, opts.username ?? 'tester')
   const chooser = page.waitForEvent('filechooser')
   await page.getByRole('button', { name: /Load a plan file/ }).click()
   await (await chooser).setFiles(SAMPLE_PLAN)
@@ -43,6 +49,7 @@ export async function onboard(page: Page, opts: { today?: string; weight?: strin
   await page.getByRole('button', { name: 'Start my plan' }).click()
   // The main navigation only appears once onboarding has been saved.
   await expect(page.getByRole('navigation', { name: 'Main' })).toBeVisible()
+  return code
 }
 
 /** The article card of a habit on Today. */

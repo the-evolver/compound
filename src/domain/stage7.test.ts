@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { zExercise, type Exercise, type WorkoutSession } from '../model/body'
 import type { SkinProduct } from '../model/skinVoice'
 import { fillersPer2Min, newProductCheck, skinPhotoSchedule, suggestPrompts } from './skinVoice'
-import { lastSetsFor, nextTemplate, prefillSets, progression, prsInSession, sessionsInWeek } from './workouts'
+import { lastSetsFor, loggedSets, nextTemplate, prefillSets, progression, prsInSession, sessionsInWeek } from './workouts'
 
 const squat: Exercise = zExercise.parse({ id: 'ex:squat', name: 'Back squat', repMin: 8, repMax: 12 })
 const pushup: Exercise = zExercise.parse({ id: 'ex:pushup', name: 'Push-ups', repMin: 8, repMax: 25, bodyweight: true })
@@ -57,6 +57,14 @@ describe('workouts (acceptance test 5)', () => {
     expect(nextTemplate(templates, [])?.id).toBe('A')
     expect(nextTemplate(templates, [session('1', '2026-12-02', [], { templateId: 'A' })])?.id).toBe('B')
     expect(nextTemplate(templates, [session('1', '2026-12-02', [], { templateId: 'A' }), session('2', '2026-12-04', [], { templateId: 'B' })])?.id).toBe('A')
+  })
+})
+
+describe('logged sets', () => {
+  it('drops untouched 0 kg sets of a weighted lift, and empty bodyweight sets', () => {
+    expect(loggedSets(squat, [{ reps: 8, kg: 0 }, { reps: 10, kg: 40 }, { reps: 8, kg: 0 }])).toEqual([{ reps: 10, kg: 40 }])
+    expect(loggedSets(squat, [{ reps: 8, kg: 0 }])).toEqual([])
+    expect(loggedSets(pushup, [{ reps: 20, kg: 0 }, { reps: 0, kg: 0 }])).toEqual([{ reps: 20, kg: 0 }])
   })
 })
 

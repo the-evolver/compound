@@ -22,6 +22,7 @@ export function Stepper({
   unit,
   label,
   size = 'md',
+  showUnit = true,
 }: {
   value: number | undefined
   onChange: (value: number | undefined) => void
@@ -33,6 +34,8 @@ export function Stepper({
   unit?: string
   label: string
   size?: 'md' | 'sm'
+  /** Hide the unit next to the number (e.g. when a column heading shows it); screen readers still hear it. */
+  showUnit?: boolean
 }) {
   const [text, setText] = useState(format(value, decimals))
   useEffect(() => {
@@ -62,7 +65,7 @@ export function Stepper({
   )
 
   return (
-    <div className="flex items-center gap-2">
+    <div className={cx('flex items-center', size === 'md' ? 'gap-2' : 'gap-1')}>
       <button type="button" className={btn} aria-label={`Decrease ${label}`} disabled={value !== undefined && value <= min} onClick={() => bump(-1)}>
         <Icon name="minus" />
       </button>
@@ -82,7 +85,7 @@ export function Stepper({
             if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
           }}
         />
-        {unit && (
+        {unit && showUnit && (
           <span className="shrink-0 text-sm text-muted" aria-hidden="true">
             {unit}
           </span>

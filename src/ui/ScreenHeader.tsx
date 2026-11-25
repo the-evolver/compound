@@ -16,7 +16,7 @@ export function ScreenHeader({
 }) {
   const navigate = useNavigate()
   return (
-    <header className="flex items-start gap-2 pb-4">
+    <header className="flex items-center gap-2 pb-1">
       {back !== undefined && (
         <button
           type="button"

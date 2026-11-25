@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { formatDay } from '../domain/time/day'
 import { wallClock } from '../domain/time/zone'
 import { KV_SCHEMAS } from '../model/kv'
-import { fromBase64, sealJson, toBase64, unsealJson, unwrapDataKey, type KdfParams } from '../platform/crypto'
+import { fromBase64, sealJson, toBase64, unsealJson, unwrapDataKey, type KdfParams, canonicalRecoveryCode } from '../platform/crypto'
 import { db } from './db'
 import { parseRow, patchKv, stripUndefined } from './repo'
 import { TABLE_NAMES, type Row, type TableName } from './tables'
@@ -53,19 +53,30 @@ export async function buildBackup(now: number): Promise<BackupFile> {
 
 // ── Encrypted backup files ──────────────────────────────────
 
+const zLock = z.object({ kdf: z.object({ salt: z.string(), iterations: z.number().int().positive() }), wrappedKey: z.string() })
+
 const zSealed = z.object({
   app: z.literal(BACKUP_APP),
   format: z.literal(2),
   encrypted: z.literal(true),
   exportedAt: z.number(),
   /** The account's data key, wrapped with the password it had at export time. */
-  lock: z.object({ kdf: z.object({ salt: z.string(), iterations: z.number().int().positive() }), wrappedKey: z.string() }),
+  lock: zLock,
+  /** The same key, wrapped with the recovery code of that time (absent in older backups). */
+  recoveryLock: zLock.optional(),
   data: z.string(),
 })
 
-/** Seals a backup with the account's data key; only the account password opens it. */
-export function sealBackup(file: BackupFile, lock: { kdf: KdfParams; wrappedKey: string }, key: Uint8Array): string {
-  return JSON.stringify({ app: BACKUP_APP, format: 2, encrypted: true, exportedAt: file.exportedAt, lock, data: toBase64(sealJson(key, file)) })
+interface Lock {
+  kdf: KdfParams
+  wrappedKey: string
+}
+
+/** Seals a backup with the account's data key; only the account's password (or recovery code) opens it. */
+export function sealBackup(file: BackupFile, account: Lock & { recovery?: Lock | undefined }, key: Uint8Array): string {
+  const lock = { kdf: account.kdf, wrappedKey: account.wrappedKey }
+  const recoveryLock = account.recovery ? { kdf: account.recovery.kdf, wrappedKey: account.recovery.wrappedKey } : undefined
+  return JSON.stringify({ app: BACKUP_APP, format: 2, encrypted: true, exportedAt: file.exportedAt, lock, recoveryLock, data: toBase64(sealJson(key, file)) })
 }
 
 export function isSealedBackup(text: string): boolean {
@@ -76,15 +87,22 @@ export function isSealedBackup(text: string): boolean {
   }
 }
 
-/** Opens an encrypted backup with the password the account had when it was made. */
-export async function openSealedBackup(text: string, password: string): Promise<string> {
-  const sealed = zSealed.parse(JSON.parse(text))
-  let key: Uint8Array
+async function tryUnwrap(lock: Lock, secret: string): Promise<Uint8Array | null> {
   try {
-    key = await unwrapDataKey(sealed.lock.wrappedKey, password, sealed.lock.kdf)
+    return await unwrapDataKey(lock.wrappedKey, secret, lock.kdf)
   } catch {
-    throw new Error('Wrong password for this backup. Use the password the account had when the backup was made.')
+    return null
   }
+}
+
+/** Opens an encrypted backup with the password the account had when it was made, or its recovery code. */
+export async function openSealedBackup(text: string, secret: string): Promise<string> {
+  const sealed = zSealed.parse(JSON.parse(text))
+  const code = canonicalRecoveryCode(secret)
+  // Something shaped like a recovery code is tried as one first: that check is quick, the password's is slow.
+  const byCode = code && sealed.recoveryLock ? await tryUnwrap(sealed.recoveryLock, code) : null
+  const key = byCode ?? (await tryUnwrap(sealed.lock, secret))
+  if (!key) throw new Error('Wrong password or recovery code for this backup. Use the password the account had when the backup was made, or its recovery code.')
   return JSON.stringify(unsealJson(key, fromBase64(sealed.data)))
 }
 

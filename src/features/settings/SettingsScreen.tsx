@@ -36,7 +36,9 @@ export function SettingsScreen() {
     <div className="space-y-6">
       <ScreenHeader title="Settings" back="/" />
 
-      <AccountSection />
+      <div id="settings-account" className="scroll-mt-4">
+        <AccountSection />
+      </div>
 
       <div id="settings-backup" className="scroll-mt-4">
         <BackupSection />

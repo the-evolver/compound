@@ -6,6 +6,7 @@ import { StudyCard } from './StudyCard'
 import { DsaCard, FollowUpsCard } from './CareerCards'
 import { TodosCard, WorkoutCard } from './MoreCards'
 import { CommitmentsCard } from './CommitmentsCard'
+import { RecoveryNudgeCard } from '../account/RecoveryNudgeCard'
 
 /**
  * Extra cards on Today (DSA reviews due, the study topic, this week's
@@ -20,6 +21,7 @@ export interface TodayCardDef {
 }
 
 export const TODAY_CARDS: readonly TodayCardDef[] = [
+  { id: 'recovery-nudge', order: 1, Component: RecoveryNudgeCard },
   { id: 'workout', order: 5, Component: WorkoutCard },
   { id: 'dsa', order: 10, Component: DsaCard },
   { id: 'study', order: 20, Component: StudyCard },

@@ -41,6 +41,14 @@ export function prefillSets(exercise: Exercise, sets: number, lastSets: readonly
   })
 }
 
+/**
+ * The sets worth recording: for a weighted lift, a set left at 0 kg was not
+ * lifted (it's the untouched default), so it isn't saved.
+ */
+export function loggedSets(exercise: Pick<Exercise, 'bodyweight'>, sets: readonly WorkoutSet[]): WorkoutSet[] {
+  return sets.filter((s) => (exercise.bodyweight ? s.reps > 0 : s.kg > 0))
+}
+
 /** Strength score of one set: estimated 1-rep max (Epley) for weighted lifts, reps/seconds for bodyweight. */
 export function setScore(exercise: Exercise, set: WorkoutSet): number {
   if (exercise.bodyweight || set.kg <= 0) return set.reps

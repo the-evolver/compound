@@ -6,6 +6,7 @@ import {
   hasLegacyData,
   migrateLegacyInto,
   openAccountDb,
+  recoverAccount,
   rememberSession,
   restoreSession,
   unlockAccount,
@@ -13,6 +14,7 @@ import {
 } from '../db/accounts'
 import { db, hasCurrentDb, setCurrentDb } from '../db/db'
 import { AccountScreen } from '../features/account/AccountScreen'
+import { RecoveryCodeScreen } from '../features/account/RecoveryCode'
 
 interface AuthValue {
   account: Account
@@ -24,7 +26,12 @@ interface AuthValue {
 
 const AuthContext = createContext<AuthValue | null>(null)
 
-type State = { status: 'loading' } | { status: 'locked'; legacy: boolean } | { status: 'open'; account: Account; key: Uint8Array }
+type State =
+  | { status: 'loading' }
+  | { status: 'locked'; legacy: boolean }
+  /** Just created: the recovery code is shown once before the app opens. */
+  | { status: 'new'; account: Account; key: Uint8Array; code: string; remember: boolean }
+  | { status: 'open'; account: Account; key: Uint8Array }
 
 /**
  * Nothing of the app renders until an account is unlocked. Each account's
@@ -58,9 +65,22 @@ export function AuthGate({ children }: { children: ReactNode }) {
   }
 
   const signup = async (username: string, password: string, remember: boolean) => {
-    const { account, key } = await createAccount(username, password)
+    const { account, key, recoveryCode } = await createAccount(username, password)
     // Data from before accounts moves into the first account, encrypted.
     if (state.status === 'locked' && state.legacy) await migrateLegacyInto(openAccountDb(account, key))
+    setState({ status: 'new', account, key, code: recoveryCode, remember })
+  }
+
+  /** After the recovery code was saved. The login is remembered only now, so a reload before this asks for the password. */
+  const finishSignup = async () => {
+    if (state.status !== 'new') return
+    await rememberSession(state.account.id, state.remember ? state.key : null)
+    goHome()
+    open(state.account, state.key)
+  }
+
+  const recover = async (username: string, code: string, newPassword: string, remember: boolean) => {
+    const { account, key } = await recoverAccount(username, code, newPassword)
     await rememberSession(account.id, remember ? key : null)
     goHome()
     open(account, key)
@@ -81,7 +101,8 @@ export function AuthGate({ children }: { children: ReactNode }) {
   }
 
   if (state.status === 'loading') return null
-  if (state.status === 'locked') return <AccountScreen legacy={state.legacy} onLogin={login} onSignup={signup} />
+  if (state.status === 'locked') return <AccountScreen legacy={state.legacy} onLogin={login} onSignup={signup} onRecover={recover} />
+  if (state.status === 'new') return <RecoveryCodeScreen code={state.code} username={state.account.username} onDone={() => void finishSignup()} />
   return (
     <AuthContext.Provider value={{ account: state.account, key: state.key, logout, refreshAccount }}>
       {/* Remount everything when the account changes, so no data carries over. */}

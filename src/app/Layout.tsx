@@ -4,6 +4,7 @@ import { Icon } from '../ui/icons'
 import { cx } from '../ui/primitives'
 import { NAV_TABS } from './screens'
 import { ReviewBanner } from '../features/review/ReviewBanner'
+import { ErrorBoundary } from './ErrorBoundary'
 
 function BottomNav() {
   // A single tab is not navigation; show the bar once there are two.
@@ -48,9 +49,12 @@ export function Layout() {
     <div className="min-h-dvh">
       <main className="mx-auto max-w-xl px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[calc(6rem+env(safe-area-inset-bottom))]">
         <ReviewBanner />
-        <Suspense fallback={null}>
-          <Outlet />
-        </Suspense>
+        {/* One crash or failed download stays on its screen; moving to another screen retries. */}
+        <ErrorBoundary resetKey={pathname}>
+          <Suspense fallback={null}>
+            <Outlet />
+          </Suspense>
+        </ErrorBoundary>
       </main>
       <BottomNav />
     </div>

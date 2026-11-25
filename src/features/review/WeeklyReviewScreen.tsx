@@ -16,6 +16,7 @@ import { Button, Card, cx } from '../../ui/primitives'
 import { ScreenHeader } from '../../ui/ScreenHeader'
 import { LagView, ScoreboardView } from './ScoreboardView'
 import { ShareButtons } from './ShareButtons'
+import { ReviewBackupCard } from '../backup/ReviewBackupCard'
 
 const STEPS = ['Scoreboard', 'Lag check', 'Wins', 'Misses', 'One change', 'Commitments'] as const
 
@@ -67,6 +68,7 @@ function ReviewFlow({ review, board, areas }: { review: WeeklyReview; board: Wee
           <p className="text-sm text-muted">Your commitments are on Today for next week. Send the summary to your accountability partner:</p>
         </Card>
         <ShareButtons text={weeklyShareText(draft, board, areas)} />
+        <ReviewBackupCard />
         <Button variant="ghost" className="w-full" onClick={() => setFinished(false)}>
           Edit this review
         </Button>

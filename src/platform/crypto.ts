@@ -97,3 +97,32 @@ export async function unwrapDataKey(wrappedKey: string, password: string, kdf: K
   const kek = await deriveKey(password, kdf)
   return unseal(kek, fromBase64(wrappedKey))
 }
+
+// ── Recovery codes ──────────────────────────────────────────
+
+/** Crockford base32: no I, L, O or U, so it reads and writes down without mix-ups. */
+const RECOVERY_ALPHABET = '0123456789ABCDEFGHJKMNPQRSTVWXYZ'
+const RECOVERY_LENGTH = 25
+
+/**
+ * A recovery code has 125 random bits, far beyond guessing, so it needs no
+ * slow stretching: a light PBKDF2 keeps it consistent with passwords.
+ */
+export const RECOVERY_ITERATIONS = 10_000
+
+/** A new recovery code, shown as five groups of five: `7K2QD-…`. */
+export function newRecoveryCode(): string {
+  // 256 is a multiple of 32, so masking each byte keeps every character equally likely.
+  const chars = Array.from(randomBytes(RECOVERY_LENGTH), (b) => RECOVERY_ALPHABET[b & 31]).join('')
+  return chars.match(/.{5}/g)!.join('-')
+}
+
+/**
+ * The code however it was typed (any case, spaces or dashes, O for 0, I or L
+ * for 1), as the 25 characters it was made from; null if it can't be one.
+ */
+export function canonicalRecoveryCode(input: string): string | null {
+  const s = input.toUpperCase().replace(/[\s-]/g, '').replace(/O/g, '0').replace(/[IL]/g, '1')
+  if (s.length !== RECOVERY_LENGTH) return null
+  return [...s].every((c) => RECOVERY_ALPHABET.includes(c)) ? s : null
+}

@@ -13,10 +13,10 @@ export default function BarTrendImpl({ data, color, target, yDomain, yTicks, hei
   return (
     <figure aria-label={ariaLabel} style={{ height }}>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 8, right: 12, bottom: 0, left: -16 }} barCategoryGap={2}>
+        <BarChart data={data} margin={{ top: 8, right: 12, bottom: 0, left: 0 }} barCategoryGap={2}>
           <CartesianGrid vertical={false} stroke={theme.line} />
           <XAxis dataKey="label" tick={{ fill: theme.faint, fontSize: 12 }} tickLine={false} axisLine={false} minTickGap={12} />
-          <YAxis domain={yDomain} ticks={yTicks} tick={{ fill: theme.faint, fontSize: 12 }} tickLine={false} axisLine={false} width={40} tickFormatter={(v) => format(Number(v))} />
+          <YAxis domain={yDomain} ticks={yTicks} tick={{ fill: theme.faint, fontSize: 12 }} tickLine={false} axisLine={false} width={44} tickFormatter={(v) => format(Number(v))} />
           <Tooltip
             cursor={{ fill: theme['surface-2'] }}
             contentStyle={{ background: theme['surface-2'], border: `1px solid ${theme.line}`, borderRadius: 12, color: theme.text, fontSize: 13 }}

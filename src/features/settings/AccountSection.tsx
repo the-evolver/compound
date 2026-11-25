@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../app/Auth'
-import { AccountError, changePassword, deleteAccount, isSessionRemembered, MIN_PASSWORD, rememberSession } from '../../db/accounts'
+import { AccountError, changePassword, deleteAccount, isSessionRemembered, makeRecoveryCode, MIN_PASSWORD, rememberSession } from '../../db/accounts'
+import { formatDay } from '../../domain/time/day'
+import { wallClock } from '../../domain/time/zone'
+import { useAppData } from '../../app/AppData'
+import { RecoveryCodeDisplay } from '../account/RecoveryCode'
 import { db } from '../../db/db'
 import { inputClass, Segmented } from '../../ui/fields'
 import { Button, Card, Row, Section } from '../../ui/primitives'
@@ -62,6 +66,60 @@ function ChangePasswordSheet({ onClose }: { onClose: () => void }) {
   )
 }
 
+function RecoveryCodeSheet({ onClose }: { onClose: () => void }) {
+  const { account, refreshAccount } = useAuth()
+  const [password, setPassword] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [code, setCode] = useState<string | null>(null)
+
+  const submit = async () => {
+    setError(null)
+    setBusy(true)
+    try {
+      setCode(await makeRecoveryCode(account.id, password))
+      await refreshAccount()
+    } catch (e) {
+      setError(e instanceof AccountError ? e.message : 'Could not make a recovery code.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Sheet title={account.recovery ? 'New recovery code' : 'Make a recovery code'} onClose={onClose}>
+      {code ? (
+        <div className="space-y-3">
+          <p className="text-sm text-muted">Keep it somewhere other than this phone. It's shown only now.</p>
+          <RecoveryCodeDisplay code={code} username={account.username} />
+          {account.recovery && <p className="text-sm text-muted">Any older code no longer resets the password, but still opens backups made while it was current.</p>}
+          <Button variant="primary" className="w-full" onClick={onClose}>
+            I've saved it
+          </Button>
+        </div>
+      ) : (
+        <form
+          className="space-y-3"
+          onSubmit={(e) => {
+            e.preventDefault()
+            void submit()
+          }}
+        >
+          <p className="text-sm text-muted">
+            A recovery code resets a forgotten password and opens your backups.{' '}
+            {account.recovery ? 'Making a new one replaces the current code.' : ''} Enter your password to continue.
+          </p>
+          <input type="password" aria-label="Password" placeholder="Password" autoComplete="current-password" className={inputClass} value={password} onChange={(e) => setPassword(e.target.value)} />
+          {error && <p className="text-sm text-bad">{error}</p>}
+          <Button type="submit" variant="primary" className="w-full" disabled={busy || !password}>
+            {busy ? 'Checking…' : 'Show my new code'}
+          </Button>
+        </form>
+      )}
+    </Sheet>
+  )
+}
+
 function DeleteAccountSheet({ onClose }: { onClose: () => void }) {
   const { account, logout } = useAuth()
   const [typed, setTyped] = useState('')
@@ -99,7 +157,8 @@ function DeleteAccountSheet({ onClose }: { onClose: () => void }) {
 export function AccountSection() {
   const { account, key, logout } = useAuth()
   const [remembered, setRemembered] = useState<boolean | null>(null)
-  const [sheet, setSheet] = useState<'password' | 'delete' | null>(null)
+  const { settings } = useAppData()
+  const [sheet, setSheet] = useState<'password' | 'recovery' | 'delete' | null>(null)
   useEffect(() => {
     void isSessionRemembered(account.id).then(setRemembered)
   }, [account.id])
@@ -125,6 +184,21 @@ export function AccountSection() {
             />
           </div>
         )}
+        <div className="space-y-2">
+          <Row
+            label="Recovery code"
+            hint={
+              account.recovery ? (
+                `Made ${formatDay(wallClock(account.recovery.createdAt, settings.timeZone).day, { day: 'numeric', month: 'short', year: 'numeric' })}. It resets a forgotten password.`
+              ) : (
+                <span className="text-warn">None yet: if you forget your password, your data can't be recovered.</span>
+              )
+            }
+          />
+          <Button variant={account.recovery ? 'secondary' : 'primary'} className="w-full" onClick={() => setSheet('recovery')}>
+            {account.recovery ? 'Make a new recovery code' : 'Make a recovery code'}
+          </Button>
+        </div>
         <div className="grid grid-cols-2 gap-2">
           <Button onClick={() => setSheet('password')}>Change password</Button>
           <Button onClick={() => void logout()}>Log out</Button>
@@ -134,6 +208,7 @@ export function AccountSection() {
         </Button>
       </Card>
       {sheet === 'password' && <ChangePasswordSheet onClose={() => setSheet(null)} />}
+      {sheet === 'recovery' && <RecoveryCodeSheet onClose={() => setSheet(null)} />}
       {sheet === 'delete' && <DeleteAccountSheet onClose={() => setSheet(null)} />}
     </Section>
   )

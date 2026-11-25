@@ -59,4 +59,14 @@ test('insights show an honest status and draw the weekly compliance chart', asyn
   await expect(chart.locator('svg.recharts-surface')).toBeVisible()
   await expect(chart.getByText('80% target')).toBeVisible()
   await expect(page.getByRole('figure', { name: /Career daily completion/ })).toBeVisible()
+
+  // Axis labels read in full: none is pushed past the chart's left edge (clipped "100%" once read "0%").
+  for (const figure of await page.getByRole('figure').all()) {
+    const box = (await figure.boundingBox())!
+    for (const tick of await figure.locator('.recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value').all()) {
+      const t = (await tick.boundingBox())!
+      expect(t.x, `${await figure.getAttribute('aria-label')}: "${await tick.textContent()}"`).toBeGreaterThanOrEqual(box.x)
+    }
+  }
+  await expect(chart.locator('.recharts-yAxis-tick-labels').getByText('100%')).toBeVisible()
 })

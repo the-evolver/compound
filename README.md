@@ -7,7 +7,7 @@ A calm, honest daily tracker for a long-term plan. An installable web app that w
 - Anyone who opens the site sees only a **log-in / create-account** screen. The app's code contains no plan: each person either starts with a **blank plan** or loads a **plan file** they own.
 - Accounts live **on the device**. Each account has its own database, encrypted with AES-256-GCM. The key is random and is stored only wrapped with the password (PBKDF2-SHA256, 600,000 rounds). Without the password the data is unreadable ciphertext; there is no password check to bypass. Record ids are random, so even the fields IndexedDB keeps readable for its indexes (ids, dates, statuses) reveal nothing about the plan.
 - **Keep me logged in** (on by default) remembers the key on this device so the app opens without the password; anyone who can unlock the phone could then open it. Turn it off in Settings → Account on shared devices.
-- There is **no password reset**. The password is the only key; keep it, and keep backups.
+- **Recovery code:** creating an account shows a 25-character code once. It is the only other key: **Forgot password?** on the log-in screen resets the password with it, and it also opens encrypted backups. Keep it off the phone (password manager, paper, Drive). Settings → Account makes a new one (asks for the password; the old one stops resetting). Nobody else can reset a password: lose both and the data is gone, so keep backups too.
 - An account exists only on the device where it was created. To move to a new phone, restore a backup file there (it asks for the password).
 - Data from the version before accounts moves into the first account created on the device, encrypted.
 
@@ -37,6 +37,7 @@ npm test           # unit tests (Vitest)
 npm run e2e        # production build + browser tests (Playwright, uses your installed Chrome)
 npm run build      # type-check + production build into dist/
 npm run preview    # serve the production build at http://localhost:4173
+npm run screens    # screenshots of every screen on a phone, after three simulated weeks (into private/screenshots/)
 ```
 
 The browser tests in `tests/e2e/` cover accounts (log-in wall, wrong passwords refused, users isolated, nothing readable stored, a blank plan built from scratch) and the acceptance tests: week-1 habits only on day 1, marking a day in seconds, strength and "never miss twice", the DSA review loop, workout pre-fill and progression, weekly-review commitments on Today, backup → reset → restore with identical data, offline use and the calendar file, and a sweep for placeholder text and unlabelled buttons. Importing the calendar file into Google Calendar is the one step that has to be checked by hand.
@@ -45,7 +46,7 @@ The browser tests in `tests/e2e/` cover accounts (log-in wall, wrong passwords r
 
 1. Create a GitHub repository (it can be private if your plan includes Pages for private repos; otherwise public) and push this project to its `main` branch.
 2. In the repo: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-3. Every push to `main` runs the tests, builds, and publishes. The workflow is `.github/workflows/deploy.yml`.
+3. Every push to `main` runs the unit tests and the browser tests (in the Chrome that GitHub's runners include), then builds and publishes; nothing is published unless every test passes. The workflow is `.github/workflows/deploy.yml`.
 4. The app is served at `https://<your-username>.github.io/<repo-name>/`.
 
 The build reads `BASE_PATH` (set by the workflow to `/<repo-name>/`). For Netlify, Vercel or a custom domain, build with the default `/`: on Netlify or Vercel, set the build command to `npm run build` and the output folder to `dist`.
@@ -63,9 +64,9 @@ After the first load it works with no connection. When a new version is deployed
 
 Your data lives only in this browser's storage, which the browser can clear, especially on iPhone.
 
-- **Settings → Backup → Back up now** saves one **encrypted** file with everything. Only the account's password opens it (the password the account had when the backup was made). On a phone this opens the share sheet: choose **Save to Files** or **Google Drive**, i.e. somewhere off the phone.
+- **Settings → Backup → Back up now** saves one **encrypted** file with everything. Only the account's password (the one it had when the backup was made) or its recovery code opens it. On a phone this opens the share sheet: choose **Save to Files** or **Google Drive**, i.e. somewhere off the phone.
 - Do it at least **weekly**: the Sunday review is a good moment. The dot next to the date on Today shows backup age (green = recent, amber = over 7 days, red = never), and Today shows a reminder card when it's overdue.
-- **Restore:** Settings → Backup → Restore from a backup file. On a new phone you can restore straight from the first screen instead of onboarding. Restoring replaces everything on the device, and nothing changes unless every record in the file is valid. Backups from older app versions are upgraded automatically.
+- **Restore:** Settings → Backup → Restore from a backup file. On a new phone you can restore straight from the first screen instead of onboarding. Restoring replaces everything on the device, and nothing changes unless every record in the file is valid. Backups from older app versions are upgraded automatically. The weekly review ends with a one-tap backup.
 - **CSV:** Settings → Backup → Export a log as CSV gives a spreadsheet of any log (habit check-ins, numbers, DSA, workouts, …).
 
 ## Reminders via your calendar

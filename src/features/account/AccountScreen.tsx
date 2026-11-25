@@ -4,21 +4,27 @@ import { inputClass, Segmented } from '../../ui/fields'
 import { Icon } from '../../ui/icons'
 import { Button } from '../../ui/primitives'
 
-type Mode = 'login' | 'signup'
+type Mode = 'login' | 'signup' | 'recover'
+
+const LABEL: Record<Mode, string> = { login: 'Log in', signup: 'Create account', recover: 'Reset password and log in' }
+const BUSY_LABEL: Record<Mode, string> = { login: 'Unlocking…', signup: 'Creating…', recover: 'Resetting…' }
 
 export function AccountScreen({
   legacy,
   onLogin,
   onSignup,
+  onRecover,
 }: {
   legacy: boolean
   onLogin: (username: string, password: string, remember: boolean) => Promise<void>
   onSignup: (username: string, password: string, remember: boolean) => Promise<void>
+  onRecover: (username: string, code: string, newPassword: string, remember: boolean) => Promise<void>
 }) {
   const [mode, setMode] = useState<Mode | null>(null)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
+  const [code, setCode] = useState('')
   const [remember, setRemember] = useState(true)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -28,17 +34,29 @@ export function AccountScreen({
   }, [legacy])
   if (!mode) return null
 
+  const switchTo = (m: Mode) => {
+    setMode(m)
+    setError(null)
+    setPassword('')
+    setConfirm('')
+  }
+
   const submit = async () => {
     setError(null)
     if (mode === 'signup') {
       const problem = validateNewAccount(username, password, confirm)
       if (problem) return setError(problem)
+    } else if (mode === 'recover') {
+      if (!username.trim() || !code.trim()) return setError('Enter your username and recovery code.')
+      if (password.length < MIN_PASSWORD) return setError(`New password: at least ${MIN_PASSWORD} characters.`)
+      if (password !== confirm) return setError("The new passwords don't match.")
     } else if (!username.trim() || !password) {
       return setError('Enter your username and password.')
     }
     setBusy(true)
     try {
-      await (mode === 'login' ? onLogin : onSignup)(username, password, remember)
+      if (mode === 'recover') await onRecover(username, code, password, remember)
+      else await (mode === 'login' ? onLogin : onSignup)(username, password, remember)
     } catch (e) {
       setError(e instanceof AccountError ? e.message : 'Something went wrong. Please try again.')
       console.error(e)
@@ -60,18 +78,22 @@ export function AccountScreen({
         </div>
       )}
 
-      <Segmented
-        label="Account"
-        value={mode}
-        options={[
-          { value: 'login', label: 'Log in' },
-          { value: 'signup', label: 'Create account' },
-        ]}
-        onChange={(m) => {
-          setMode(m)
-          setError(null)
-        }}
-      />
+      {mode === 'recover' ? (
+        <div className="space-y-1">
+          <h2 className="text-lg font-semibold">Reset your password</h2>
+          <p className="text-sm text-muted">Use the recovery code you saved when you created the account. Your data stays as it is.</p>
+        </div>
+      ) : (
+        <Segmented
+          label="Account"
+          value={mode}
+          options={[
+            { value: 'login', label: 'Log in' },
+            { value: 'signup', label: 'Create account' },
+          ]}
+          onChange={switchTo}
+        />
+      )}
 
       <form
         className="space-y-3"
@@ -91,19 +113,36 @@ export function AccountScreen({
             onChange={(e) => setUsername(e.target.value)}
           />
         </label>
+        {mode === 'recover' && (
+          <label className="block text-sm">
+            <span className="text-muted">Recovery code</span>
+            <input
+              className={`${inputClass} mt-1 font-mono uppercase`}
+              autoComplete="off"
+              autoCapitalize="characters"
+              spellCheck={false}
+              placeholder="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+            />
+          </label>
+        )}
         <label className="block text-sm">
-          <span className="text-muted">Password{mode === 'signup' ? ` (at least ${MIN_PASSWORD} characters)` : ''}</span>
+          <span className="text-muted">
+            {mode === 'recover' ? 'New password' : 'Password'}
+            {mode !== 'login' ? ` (at least ${MIN_PASSWORD} characters)` : ''}
+          </span>
           <input
             type="password"
             className={`${inputClass} mt-1`}
-            autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </label>
-        {mode === 'signup' && (
+        {mode !== 'login' && (
           <label className="block text-sm">
-            <span className="text-muted">Password again</span>
+            <span className="text-muted">{mode === 'recover' ? 'New password again' : 'Password again'}</span>
             <input type="password" className={`${inputClass} mt-1`} autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
           </label>
         )}
@@ -120,15 +159,25 @@ export function AccountScreen({
           </p>
         )}
         <Button type="submit" variant="primary" className="w-full" disabled={busy}>
-          {busy ? (mode === 'login' ? 'Unlocking…' : 'Creating…') : mode === 'login' ? 'Log in' : 'Create account'}
+          {busy ? BUSY_LABEL[mode] : LABEL[mode]}
         </Button>
+        {mode === 'login' && (
+          <Button variant="ghost" className="w-full" onClick={() => switchTo('recover')}>
+            Forgot password?
+          </Button>
+        )}
+        {mode === 'recover' && (
+          <Button variant="ghost" className="w-full" onClick={() => switchTo('login')}>
+            Back to log in
+          </Button>
+        )}
       </form>
 
       <p className="flex items-start gap-2 text-xs text-faint">
         <Icon name="shield" size={16} className="mt-0.5 shrink-0" />
         <span>
-          There is no password reset: your password is the only key to your data, and nothing is sent anywhere. Keep backups, and remember the
-          password.
+          Nothing is sent anywhere: your password, or the recovery code you get when you create the account, is the only key to your data. No one
+          else can reset it. Keep backups.
         </span>
       </p>
     </div>

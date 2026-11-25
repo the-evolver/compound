@@ -1,7 +1,19 @@
 import Dexie, { type Table } from 'dexie'
 import { z } from 'zod'
 import { clock } from '../domain/time/clock'
-import { KDF_ITERATIONS, newDataKey, newKdfParams, toBase64, fromBase64, unwrapDataKey, wrapDataKey, type KdfParams } from '../platform/crypto'
+import {
+  canonicalRecoveryCode,
+  KDF_ITERATIONS,
+  newDataKey,
+  newKdfParams,
+  newRecoveryCode,
+  RECOVERY_ITERATIONS,
+  toBase64,
+  fromBase64,
+  unwrapDataKey,
+  wrapDataKey,
+  type KdfParams,
+} from '../platform/crypto'
 import { accountDbName, LEGACY_DB_NAME, openDb, type CompoundDB } from './db'
 import { TABLE_NAMES } from './tables'
 
@@ -11,14 +23,18 @@ import { TABLE_NAMES } from './tables'
  * the password. Each account's data lives in its own encrypted database.
  */
 
+const zKdf = z.object({ salt: z.string(), iterations: z.number().int().positive() })
+
 export const zAccount = z.object({
   id: z.string().min(1),
   username: z.string().min(1),
   /** Lower-cased username, unique on this device. */
   handle: z.string().min(1),
-  kdf: z.object({ salt: z.string(), iterations: z.number().int().positive() }),
+  kdf: zKdf,
   wrappedKey: z.string(),
   createdAt: z.number(),
+  /** The same data key, wrapped with the recovery code. Absent on accounts made before recovery codes. */
+  recovery: z.object({ kdf: zKdf, wrappedKey: z.string(), createdAt: z.number() }).optional(),
 })
 export type Account = z.output<typeof zAccount>
 
@@ -58,15 +74,29 @@ export async function listAccounts(): Promise<Account[]> {
   return registry.accounts.orderBy('handle').toArray()
 }
 
-/** Creates an account and returns its (open) encrypted database. */
-export async function createAccount(username: string, password: string, iterations = KDF_ITERATIONS): Promise<{ account: Account; key: Uint8Array }> {
+async function wrapRecovery(key: Uint8Array): Promise<{ code: string; recovery: NonNullable<Account['recovery']> }> {
+  const code = newRecoveryCode()
+  const { kdf, wrappedKey } = await wrapDataKey(key, canonicalRecoveryCode(code)!, newKdfParams(RECOVERY_ITERATIONS))
+  return { code, recovery: { kdf, wrappedKey, createdAt: clock.now() } }
+}
+
+/**
+ * Creates an account. Returns its data key and its recovery code, which is
+ * stored only wrapped: show it to the person once.
+ */
+export async function createAccount(
+  username: string,
+  password: string,
+  iterations = KDF_ITERATIONS,
+): Promise<{ account: Account; key: Uint8Array; recoveryCode: string }> {
   const handle = handleOf(username)
   if (await registry.accounts.where('handle').equals(handle).count()) throw new AccountError('That username is already used on this device.')
   const key = newDataKey()
   const { kdf, wrappedKey } = await wrapDataKey(key, password, newKdfParams(iterations))
-  const account = zAccount.parse({ id: crypto.randomUUID(), username: username.trim(), handle, kdf, wrappedKey, createdAt: clock.now() })
+  const { code, recovery } = await wrapRecovery(key)
+  const account = zAccount.parse({ id: crypto.randomUUID(), username: username.trim(), handle, kdf, wrappedKey, createdAt: clock.now(), recovery })
   await registry.accounts.add(account)
-  return { account, key }
+  return { account, key, recoveryCode: code }
 }
 
 /** Checks the password by unwrapping the data key. Throws on an unknown user or a wrong password. */
@@ -92,6 +122,43 @@ export async function changePassword(accountId: string, oldPassword: string, new
   }
   const { kdf, wrappedKey } = await wrapDataKey(key, newPassword, newKdfParams(account.kdf.iterations))
   await registry.accounts.put({ ...account, kdf, wrappedKey })
+}
+
+/**
+ * Makes a new recovery code (the old one stops working). Asks for the
+ * password, so someone holding an unlocked phone can't take the account over.
+ */
+export async function makeRecoveryCode(accountId: string, password: string): Promise<string> {
+  const account = await registry.accounts.get(accountId)
+  if (!account) throw new AccountError('Account not found.')
+  let key: Uint8Array
+  try {
+    key = await unwrapDataKey(account.wrappedKey, password, account.kdf)
+  } catch {
+    throw new AccountError('Wrong password.')
+  }
+  const { code, recovery } = await wrapRecovery(key)
+  await registry.accounts.put({ ...account, recovery })
+  return code
+}
+
+/** A forgotten password: the recovery code unlocks the data key, which is re-wrapped with a new password. */
+export async function recoverAccount(username: string, code: string, newPassword: string): Promise<{ account: Account; key: Uint8Array }> {
+  const account = await registry.accounts.where('handle').equals(handleOf(username)).first()
+  if (!account) throw new AccountError('No account with that username on this device.')
+  if (!account.recovery) throw new AccountError('This account has no recovery code, so its password cannot be reset.')
+  const canonical = canonicalRecoveryCode(code)
+  if (!canonical) throw new AccountError('A recovery code has 25 letters and numbers. Check it and try again.')
+  let key: Uint8Array
+  try {
+    key = await unwrapDataKey(account.recovery.wrappedKey, canonical, account.recovery.kdf)
+  } catch {
+    throw new AccountError('Wrong recovery code.')
+  }
+  const { kdf, wrappedKey } = await wrapDataKey(key, newPassword, newKdfParams(account.kdf.iterations))
+  const updated = { ...account, kdf, wrappedKey }
+  await registry.accounts.put(updated)
+  return { account: updated, key }
 }
 
 export function openAccountDb(account: Pick<Account, 'id'>, key: Uint8Array): CompoundDB {

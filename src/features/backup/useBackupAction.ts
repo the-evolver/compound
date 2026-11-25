@@ -36,7 +36,7 @@ export function useBackupAction() {
     try {
       const at = clock.now()
       const file = await buildBackup(at)
-      const content = sealBackup(file, { kdf: account.kdf, wrappedKey: account.wrappedKey }, key)
+      const content = sealBackup(file, account, key)
       await deliver(backupFileName(file, settings.timeZone), content, at)
     } catch (e) {
       console.error(e)
