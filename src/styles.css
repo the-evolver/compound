@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens. Components use only these names (bg-surface, text-muted,
+ * border-line, …), so a theme is just a different set of values below.
+ */
+@theme static {
+  --color-bg: #0f1217;
+  --color-surface: #171b22;
+  --color-surface-2: #1f242d;
+  --color-line: #2a313b;
+  --color-text: #e8ebef;
+  --color-muted: #a0a9b4;
+  --color-faint: #6f7985;
+  --color-accent: #5eead4;
+  --color-accent-ink: #0b1f1c;
+  --color-ok: #34d399;
+  --color-warn: #fbbf24;
+  --color-bad: #f87171;
+
+  /* Chart series, in fixed order. Validated with the dataviz palette checker
+     (adjacent pairs, colour-blind and normal vision, dark and light). */
+  --color-series-1: #338ced;
+  --color-series-2: #e76624;
+  --color-series-3: #00a888;
+  --color-series-4: #9887ef;
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+[data-theme="light"] {
+  --color-bg: #f5f6f8;
+  --color-surface: #ffffff;
+  --color-surface-2: #eef0f3;
+  --color-line: #d9dde3;
+  --color-text: #15191f;
+  --color-muted: #4d5661;
+  --color-faint: #7a838e;
+  --color-accent: #0f766e;
+  --color-accent-ink: #ffffff;
+  --color-ok: #047857;
+  --color-warn: #b45309;
+  --color-bad: #b91c1c;
+  --color-series-1: #257de0;
+  --color-series-2: #f47230;
+  --color-series-3: #00b894;
+  --color-series-4: #6a4ce2;
+}
+
+html {
+  color-scheme: dark;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+body {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

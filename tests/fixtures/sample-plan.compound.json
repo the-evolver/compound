@@ -1,0 +1,1117 @@
+{
+  "kind": "compound-plan",
+  "version": 1,
+  "name": "Sample plan (tests)",
+  "description": "A neutral sample plan used by the automated tests.",
+  "suggestedStart": "2026-12-01",
+  "planEnd": "2027-08-31",
+  "areas": [
+    {
+      "id": "career",
+      "name": "Career",
+      "goal": "Next role",
+      "color": "#338ced",
+      "order": 0,
+      "leadMeasures": [
+        "DSA problems logged per week",
+        "DSA reviews done",
+        "Study topics advanced per week",
+        "Mocks per week (from Phase 2)",
+        "Referrals and applications moved per week (from May)"
+      ],
+      "lagMeasures": [
+        "Mock scores",
+        "Checkpoint results",
+        "Offers"
+      ],
+      "notes": [
+        {
+          "id": "career:applications",
+          "kind": "note",
+          "title": "Application plan",
+          "body": "Start asking for referrals early; hiring loops take weeks."
+        }
+      ],
+      "charts": "career"
+    },
+    {
+      "id": "body",
+      "name": "Body",
+      "goal": "Recomposition: lose fat, build muscle",
+      "color": "#e76624",
+      "order": 1,
+      "leadMeasures": [
+        "Workouts per week",
+        "Steps per day",
+        "Protein g per day",
+        "Sleep hours"
+      ],
+      "lagMeasures": [
+        "7-day average weight",
+        "Waist",
+        "PRs",
+        "2 km run time"
+      ],
+      "charts": "body"
+    },
+    {
+      "id": "skin",
+      "name": "Skin",
+      "goal": "Daily sun protection",
+      "color": "#00a888",
+      "order": 2,
+      "leadMeasures": [
+        "Sunscreen days per week",
+        "PM routine days per week"
+      ],
+      "lagMeasures": [
+        "Photo checkpoints"
+      ],
+      "notes": [
+        {
+          "id": "skin:goal",
+          "kind": "note",
+          "title": "What this is about",
+          "body": "Daily sunscreen does most of the work; visible change takes weeks."
+        },
+        {
+          "id": "skin:safety",
+          "kind": "safety",
+          "title": "Safety",
+          "body": "Patch-test every new product. One new product at a time."
+        }
+      ],
+      "charts": "skin"
+    },
+    {
+      "id": "voice",
+      "name": "Voice",
+      "goal": "Communication & people skills",
+      "color": "#9887ef",
+      "order": 3,
+      "leadMeasures": [
+        "Drills per week",
+        "Filler count",
+        "Social quests per week",
+        "Mocks with a communication score"
+      ],
+      "lagMeasures": [
+        "Mock communication score (1–4)",
+        "Fillers per 2 min"
+      ],
+      "charts": "voice"
+    }
+  ],
+  "phases": [
+    {
+      "id": "phase:foundation",
+      "name": "Foundation",
+      "start": {
+        "afterStart": 0
+      },
+      "end": "2027-02-28",
+      "order": 0,
+      "goal": "Sample goal for Foundation."
+    },
+    {
+      "id": "phase:build",
+      "name": "Build",
+      "start": "2027-03-01",
+      "end": "2027-05-31",
+      "order": 1,
+      "goal": "Sample goal for Build."
+    },
+    {
+      "id": "phase:perform",
+      "name": "Perform",
+      "start": "2027-06-01",
+      "end": "2027-08-31",
+      "order": 2,
+      "goal": "Sample goal for Perform."
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "cp:career:2026-12-31:0",
+      "areaId": "career",
+      "day": "2026-12-31",
+      "title": "2 unseen LeetCode mediums in 60 min"
+    },
+    {
+      "id": "cp:career:2027-02-28:0",
+      "areaId": "career",
+      "day": "2027-02-28",
+      "title": "Unseen 90-min LLD machine-coding round with working code"
+    },
+    {
+      "id": "cp:career:2027-02-28:1",
+      "areaId": "career",
+      "day": "2027-02-28",
+      "title": "≥2/4 in a live LeetCode contest"
+    },
+    {
+      "id": "cp:career:2027-05-31:0",
+      "areaId": "career",
+      "day": "2027-05-31",
+      "title": "45-min HLD mock ≥3/4"
+    },
+    {
+      "id": "cp:career:2027-05-31:1",
+      "areaId": "career",
+      "day": "2027-05-31",
+      "title": "2 DSA mocks ≥3/4"
+    },
+    {
+      "id": "cp:career:2027-05-31:2",
+      "areaId": "career",
+      "day": "2027-05-31",
+      "title": "8 STAR stories drafted"
+    },
+    {
+      "id": "cp:career:2027-07-31:0",
+      "areaId": "career",
+      "day": "2027-07-31",
+      "title": "Full mock loop (DSA ×2, LLD, HLD, behavioural), every round ≥3/4"
+    },
+    {
+      "id": "cp:career:2027-08-31:0",
+      "areaId": "career",
+      "day": "2027-08-31",
+      "title": "Offer"
+    },
+    {
+      "id": "cp:body:2027-02-28:0",
+      "areaId": "body",
+      "day": "2027-02-28",
+      "title": "≥12 workouts in each of the first 3 months"
+    },
+    {
+      "id": "cp:body:2027-02-28:1",
+      "areaId": "body",
+      "day": "2027-02-28",
+      "title": "25 straight push-ups"
+    },
+    {
+      "id": "cp:body:2027-05-31:0",
+      "areaId": "body",
+      "day": "2027-05-31",
+      "title": "Waist below baseline"
+    },
+    {
+      "id": "cp:body:2027-05-31:1",
+      "areaId": "body",
+      "day": "2027-05-31",
+      "title": "2 km run time improved"
+    },
+    {
+      "id": "cp:body:2027-08-31:0",
+      "areaId": "body",
+      "day": "2027-08-31",
+      "title": "≥85% training consistency over the last 90 days"
+    },
+    {
+      "id": "cp:skin:week12",
+      "areaId": "skin",
+      "day": {
+        "afterStart": 84
+      },
+      "title": "Week-12 photo comparison shows visible improvement"
+    },
+    {
+      "id": "cp:skin:2026-12-31:12",
+      "areaId": "skin",
+      "day": "2026-12-31",
+      "title": "Sunscreen on ≥90% of days in December"
+    },
+    {
+      "id": "cp:skin:2027-01-31:1",
+      "areaId": "skin",
+      "day": "2027-01-31",
+      "title": "Sunscreen on ≥90% of days in January"
+    },
+    {
+      "id": "cp:skin:2027-02-28:2",
+      "areaId": "skin",
+      "day": "2027-02-28",
+      "title": "Sunscreen on ≥90% of days in February"
+    },
+    {
+      "id": "cp:skin:2027-03-31:3",
+      "areaId": "skin",
+      "day": "2027-03-31",
+      "title": "Sunscreen on ≥90% of days in March"
+    },
+    {
+      "id": "cp:skin:2027-04-30:4",
+      "areaId": "skin",
+      "day": "2027-04-30",
+      "title": "Sunscreen on ≥90% of days in April"
+    },
+    {
+      "id": "cp:skin:2027-05-31:5",
+      "areaId": "skin",
+      "day": "2027-05-31",
+      "title": "Sunscreen on ≥90% of days in May"
+    },
+    {
+      "id": "cp:skin:2027-06-30:6",
+      "areaId": "skin",
+      "day": "2027-06-30",
+      "title": "Sunscreen on ≥90% of days in June"
+    },
+    {
+      "id": "cp:skin:2027-07-31:7",
+      "areaId": "skin",
+      "day": "2027-07-31",
+      "title": "Sunscreen on ≥90% of days in July"
+    },
+    {
+      "id": "cp:skin:2027-08-31:8",
+      "areaId": "skin",
+      "day": "2027-08-31",
+      "title": "Sunscreen on ≥90% of days in August"
+    },
+    {
+      "id": "cp:voice:2026-12-31:0",
+      "areaId": "voice",
+      "day": "2026-12-31",
+      "title": "2-min 'Tell me about yourself' with fewer than 8 fillers"
+    },
+    {
+      "id": "cp:voice:2027-02-28:0",
+      "areaId": "voice",
+      "day": "2027-02-28",
+      "title": "Fewer than 4 fillers in 2 minutes"
+    },
+    {
+      "id": "cp:voice:2027-02-28:1",
+      "areaId": "voice",
+      "day": "2027-02-28",
+      "title": "A 5-min recorded DSA explanation I'd be happy for an interviewer to hear"
+    },
+    {
+      "id": "cp:voice:2027-05-31:0",
+      "areaId": "voice",
+      "day": "2027-05-31",
+      "title": "Communication ≥3/4 in 3 mocks"
+    },
+    {
+      "id": "cp:voice:2027-08-31:0",
+      "areaId": "voice",
+      "day": "2027-08-31",
+      "title": "Lead one knowledge-sharing session or tech talk at work"
+    }
+  ],
+  "habits": [
+    {
+      "id": "habit:dsa-daily",
+      "areaId": "career",
+      "name": "DSA practice",
+      "ifThen": "After dinner, at my desk, I open the review queue first, then do 1 new problem.",
+      "obstacle": "If I'm stuck >40 min, I read one hint, log it as 'with hint', and let it schedule a review.",
+      "minVersion": "1 review problem.",
+      "timeBlock": "evening",
+      "reminderTime": "21:30",
+      "order": 0,
+      "starts": {
+        "afterStart": 0
+      },
+      "rules": [
+        {
+          "schedule": {
+            "kind": "daily"
+          },
+          "completion": {
+            "kind": "log",
+            "source": "dsa",
+            "target": {
+              "kind": "weekdayWeekend",
+              "weekday": 2,
+              "weekend": 4
+            },
+            "min": {
+              "kind": "fixed",
+              "value": 1
+            }
+          },
+          "targetText": "Weekdays 2 items, weekends 4 (reviews first, then new)"
+        }
+      ]
+    },
+    {
+      "id": "habit:study-block",
+      "areaId": "career",
+      "name": "Study block",
+      "ifThen": "Right after I get home and change, I study the next topic of the Active subject.",
+      "obstacle": "If I'm home late or drained, I revise one topic for 15 minutes instead of skipping.",
+      "minVersion": "Revise 1 topic for 15 min.",
+      "timeBlock": "evening",
+      "reminderTime": "19:30",
+      "order": 1,
+      "starts": {
+        "afterStart": 0
+      },
+      "rules": [
+        {
+          "schedule": {
+            "kind": "daily"
+          },
+          "completion": {
+            "kind": "log",
+            "source": "study",
+            "target": {
+              "kind": "fixed",
+              "value": 1
+            }
+          },
+          "targetText": "Weekdays 45–60 min, weekends 2 h"
+        }
+      ]
+    },
+    {
+      "id": "habit:lc-contest",
+      "areaId": "career",
+      "name": "Weekly LeetCode contest",
+      "ifThen": "On Sunday at 8 AM, at my desk, I join the LeetCode weekly contest.",
+      "obstacle": "If I miss the live slot, I do it as a virtual contest the same day.",
+      "minVersion": "Solve the first 2 contest problems (live or virtual).",
+      "timeBlock": "morning",
+      "reminderTime": "07:45",
+      "order": 2,
+      "starts": {
+        "afterStart": 14
+      },
+      "rules": [
+        {
+          "schedule": {
+            "kind": "days",
+            "days": [
+              0
+            ]
+          },
+          "completion": {
+            "kind": "manual"
+          },
+          "targetText": "Sunday morning"
+        }
+      ]
+    },
+    {
+      "id": "habit:mock-weekly",
+      "areaId": "career",
+      "name": "Weekly mock interview",
+      "ifThen": "On Saturday morning, at my desk, I do one mock interview (peer or online) and log the scores.",
+      "obstacle": "If no peer is free, I book an online mock or do a solo timed mock and record it.",
+      "minVersion": "A solo 45-min timed mock, recorded.",
+      "timeBlock": "morning",
+      "reminderTime": "10:00",
+      "reminderDays": [
+        6
+      ],
+      "order": 3,
+      "starts": "2027-03-01",
+      "rules": [
+        {
+          "schedule": {
+            "kind": "perWeek",
+            "times": 1
+          },
+          "completion": {
+            "kind": "log",
+            "source": "mock",
+            "target": {
+              "kind": "fixed",
+              "value": 1
+            }
+          },
+          "targetText": "1 mock per week"
+        }
+      ]
+    },
+    {
+      "id": "habit:applications",
+      "areaId": "career",
+      "name": "Move applications forward",
+      "ifThen": "At lunch on Mon, Wed and Fri, at my desk, I move one application forward: ask for a referral, apply, or follow up.",
+      "obstacle": "If I have no new leads, I pick the next 3 companies from my target list and find a referrer on LinkedIn.",
+      "minVersion": "Send one follow-up message.",
+      "timeBlock": "daytime",
+      "reminderTime": "13:30",
+      "reminderDays": [
+        1,
+        3,
+        5
+      ],
+      "order": 4,
+      "starts": "2027-05-01",
+      "rules": [
+        {
+          "schedule": {
+            "kind": "perWeek",
+            "times": 3
+          },
+          "completion": {
+            "kind": "log",
+            "source": "applicationMoves",
+            "target": {
+              "kind": "fixed",
+              "value": 1
+            }
+          },
+          "targetText": "3 moves per week; 30–40 companies in total"
+        }
+      ]
+    },
+    {
+      "id": "habit:workout",
+      "areaId": "body",
+      "name": "Workout: full body",
+      "ifThen": "When my alarm rings on {workoutDays}, I put on gym clothes and leave within 10 minutes.",
+      "obstacle": "If I can't reach the gym, I do the home session.",
+      "minVersion": "20-min home session: push-ups, squats, plank.",
+      "timeBlock": "morning",
+      "reminderTime": "workoutTime",
+      "order": 0,
+      "starts": {
+        "afterStart": 0
+      },
+      "rules": [
+        {
+          "schedule": {
+            "kind": "days",
+            "days": "workoutDays"
+          },
+          "completion": {
+            "kind": "log",
+            "source": "workout",
+            "target": {
+              "kind": "fixed",
+              "value": 1
+            },
+            "min": {
+              "kind": "fixed",
+              "value": 0.5
+            }
+          },
+          "targetText": "Full body on {workoutDays}"
+        },
+        {
+          "from": "2027-03-01",
+          "schedule": {
+            "kind": "days",
+            "days": "workoutDaysPlusOne"
+          },
+          "completion": {
+            "kind": "log",
+            "source": "workout",
+            "target": {
+              "kind": "fixed",
+              "value": 1
+            },
+            "min": {
+              "kind": "fixed",
+              "value": 0.5
+            }
+          },
+          "targetText": "4× per week from Phase 2",
+          "proposed": true,
+          "note": "Phase 2: 4 workouts a week."
+        }
+      ]
+    },
+    {
+      "id": "habit:steps",
+      "areaId": "body",
+      "name": "Steps",
+      "ifThen": "After lunch, at the office, I take a 15-minute walk.",
+      "obstacle": "If it rains or I'm stuck at my desk, I take the stairs and pace during calls.",
+      "minVersion": "A 15-min walk (about 4,000 steps).",
+      "timeBlock": "daytime",
+      "reminderTime": "13:15",
+      "order": 1,
+      "starts": {
+        "afterStart": 0
+      },
+      "rules": [
+        {
+          "schedule": {
+            "kind": "daily"
+          },
+          "completion": {
+            "kind": "metric",
+            "metric": "steps",
+            "target": {
+              "kind": "fixed",
+              "value": 7000
+            },
+            "min": {
+              "kind": "fixed",
+              "value": 4000
+            }
+          },
+          "targetText": "7,000 steps a day"
+        },
+        {
+          "from": "2027-03-01",
+          "schedule": {
+            "kind": "daily"
+          },
+          "completion": {
+            "kind": "metric",
+            "metric": "steps",
+            "target": {
+              "kind": "fixed",
+              "value": 9000
+            },
+            "min": {
+              "kind": "fixed",
+              "value": 5000
+            }
+          },
+          "targetText": "9,000 steps a day (Phase 2: 8–10k)",
+          "proposed": true,
+          "note": "Phase 2: raise steps to 8–10k."
+        }
+      ]
+    },
+    {
+      "id": "habit:protein",
+      "areaId": "body",
+      "name": "Protein",
+      "ifThen": "When I sit down for any meal, at home or at the office, I make sure it has a protein source.",
+      "obstacle": "If a meal has no protein option, I have a whey shake or curd/Greek yogurt after it.",
+      "minVersion": "Protein in 2 meals.",
+      "timeBlock": "anytime",
+      "order": 2,
+      "starts": {
+        "afterStart": 14
+      },
+      "rules": [
+        {
+          "schedule": {
+            "kind": "daily"
+          },
+          "completion": {
+            "kind": "metric",
+            "metric": "proteinG",
+            "target": {
+              "kind": "perKgBodyweight",
+              "perKg": 1.6
+            },
+            "min": {
+              "kind": "perKgBodyweight",
+              "perKg": 1
+            }
+          },
+          "targetText": "~1.6 g per kg bodyweight, protein in every meal"
+        }
+      ]
+    },
+    {
+      "id": "habit:sleep",
+      "areaId": "body",
+      "name": "Sleep 7 h",
+      "ifThen": "At midnight, in my bedroom, I put my phone on the charger out of reach and have lights out by 12:30.",
+      "obstacle": "If I'm still working at midnight, I stop at a clean checkpoint and write down the next step.",
+      "minVersion": "Lights out by 1:00.",
+      "timeBlock": "evening",
+      "reminderTime": "00:00",
+      "order": 3,
+      "starts": {
+        "afterStart": 28
+      },
+      "rules": [
+        {
+          "schedule": {
+            "kind": "daily"
+          },
+          "completion": {
+            "kind": "metric",
+            "metric": "sleepH",
+            "target": {
+              "kind": "fixed",
+              "value": 7
+            },
+            "min": {
+              "kind": "fixed",
+              "value": 6
+            }
+          },
+          "targetText": "7 h (lights out by 12:30)"
+        }
+      ]
+    },
+    {
+      "id": "habit:sunscreen-am",
+      "areaId": "skin",
+      "name": "AM: cleanser + sunscreen",
+      "ifThen": "After brushing my teeth in the morning, I apply sunscreen before leaving the bathroom.",
+      "obstacle": "If I'm out of sunscreen, I buy a tube that day and wear a cap until then.",
+      "minVersion": "Sunscreen only.",
+      "timeBlock": "morning",
+      "reminderTime": "08:00",
+      "order": 0,
+      "starts": {
+        "afterStart": 0
+      },
+      "rules": [
+        {
+          "schedule": {
+            "kind": "daily"
+          },
+          "completion": {
+            "kind": "manual"
+          },
+          "targetText": "Gentle cleanser + SPF 50, PA++++ on face and neck, every day, indoors and cloudy days too"
+        }
+      ],
+      "role": "sunscreen"
+    },
+    {
+      "id": "habit:sunscreen-reapply",
+      "areaId": "skin",
+      "name": "Reapply before long time outdoors",
+      "ifThen": "Before I step out for more than an hour, at the door, I reapply sunscreen and put on my cap.",
+      "obstacle": "If I forgot the tube, I stay in the shade and keep the cap on.",
+      "minVersion": "Wear a cap outside.",
+      "doneHint": "Done = reapplied, or no long time outdoors today",
+      "timeBlock": "daytime",
+      "reminderTime": "12:30",
+      "order": 1,
+      "starts": {
+        "afterStart": 0
+      },
+      "rules": [
+        {
+          "schedule": {
+            "kind": "daily"
+          },
+          "completion": {
+            "kind": "manual"
+          },
+          "targetText": "Carry a small tube; cap outside"
+        }
+      ]
+    },
+    {
+      "id": "habit:pm-routine",
+      "areaId": "skin",
+      "name": "PM: cleanse + moisturiser",
+      "ifThen": "After I brush my teeth at night, at the bathroom sink, I cleanse and moisturise.",
+      "obstacle": "If I'm away from home, I carry travel sizes in my bag.",
+      "minVersion": "Moisturiser only.",
+      "timeBlock": "evening",
+      "reminderTime": "23:30",
+      "order": 2,
+      "starts": {
+        "afterStart": 14
+      },
+      "rules": [
+        {
+          "schedule": {
+            "kind": "daily"
+          },
+          "completion": {
+            "kind": "manual"
+          },
+          "targetText": "Every night"
+        }
+      ]
+    },
+    {
+      "id": "habit:speaking-drill",
+      "areaId": "voice",
+      "name": "7-min speaking drill",
+      "ifThen": "After my study block, I record the drill before closing the laptop.",
+      "obstacle": "If people are around and I can't speak aloud, I record a 1-minute version on the balcony or in the car.",
+      "minVersion": "1-minute recording.",
+      "timeBlock": "evening",
+      "reminderTime": "20:30",
+      "order": 0,
+      "starts": {
+        "afterStart": 0
+      },
+      "rules": [
+        {
+          "schedule": {
+            "kind": "daily"
+          },
+          "completion": {
+            "kind": "log",
+            "source": "drill",
+            "target": {
+              "kind": "fixed",
+              "value": 1
+            }
+          },
+          "targetText": "Explain today's topic simply, replay at 1.5×, count fillers, rate, write one fix"
+        }
+      ]
+    },
+    {
+      "id": "habit:think-aloud",
+      "areaId": "voice",
+      "name": "Think out loud on 1 DSA problem",
+      "ifThen": "When I start my first DSA problem of the day, I explain my approach out loud before coding.",
+      "obstacle": "If someone's around, I write my reasoning as bullet points instead.",
+      "minVersion": "Explain the approach out loud for 2 minutes.",
+      "timeBlock": "evening",
+      "order": 1,
+      "starts": {
+        "afterStart": 14
+      },
+      "rules": [
+        {
+          "schedule": {
+            "kind": "daily"
+          },
+          "completion": {
+            "kind": "manual"
+          },
+          "targetText": "1 problem a day"
+        }
+      ]
+    },
+    {
+      "id": "habit:people-quests",
+      "areaId": "voice",
+      "name": "People quests",
+      "ifThen": "On Monday morning, I pick 2 quests for the week and do them at work or with friends.",
+      "obstacle": "If the week has no social chances, I message one old colleague and ask a follow-up question about their work.",
+      "minVersion": "One quest.",
+      "timeBlock": "anytime",
+      "reminderTime": "09:30",
+      "reminderDays": [
+        1
+      ],
+      "order": 2,
+      "starts": {
+        "afterStart": 28
+      },
+      "rules": [
+        {
+          "schedule": {
+            "kind": "perWeek",
+            "times": 2
+          },
+          "completion": {
+            "kind": "manual"
+          },
+          "targetText": "2 quests a week"
+        }
+      ]
+    },
+    {
+      "id": "habit:star-story",
+      "areaId": "voice",
+      "name": "Record 1 STAR story",
+      "ifThen": "On Saturday after my mock, at my desk, I record one STAR story and rate it.",
+      "obstacle": "If I have no new story, I re-record my weakest one.",
+      "minVersion": "Outline one story in bullet points.",
+      "timeBlock": "daytime",
+      "reminderTime": "11:30",
+      "reminderDays": [
+        6
+      ],
+      "order": 3,
+      "starts": "2027-03-01",
+      "rules": [
+        {
+          "schedule": {
+            "kind": "perWeek",
+            "times": 1
+          },
+          "completion": {
+            "kind": "manual"
+          },
+          "targetText": "1 story a week"
+        }
+      ]
+    }
+  ],
+  "subjects": [
+    {
+      "id": "subject:lld",
+      "name": "LLD",
+      "status": "active",
+      "note": "Phase 1",
+      "topics": [
+        {
+          "group": "Foundations",
+          "titles": [
+            "OOP & SOLID",
+            "Class diagrams"
+          ]
+        },
+        {
+          "group": "Patterns",
+          "titles": [
+            "Strategy",
+            "Observer",
+            "Factory",
+            "Builder",
+            "Singleton",
+            "Decorator",
+            "State",
+            "Chain of Responsibility"
+          ]
+        },
+        {
+          "group": "Machine coding",
+          "titles": [
+            "Tic-Tac-Toe",
+            "Parking Lot",
+            "LRU Cache",
+            "Splitwise",
+            "BookMyShow",
+            "Elevator",
+            "Rate Limiter",
+            "Snake & Ladder",
+            "Vending Machine",
+            "Logger",
+            "Pub-Sub"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "subject:hld",
+      "name": "HLD",
+      "status": "queued",
+      "note": "Phase 2",
+      "topics": [
+        {
+          "group": "Concepts",
+          "titles": [
+            "Back-of-envelope estimation",
+            "Scaling",
+            "Load balancing",
+            "Caching",
+            "SQL vs NoSQL",
+            "Replication",
+            "Sharding",
+            "Consistency & CAP",
+            "Queues & Kafka",
+            "Rate limiting"
+          ]
+        },
+        {
+          "group": "Designs",
+          "titles": [
+            "URL shortener",
+            "Rate limiter",
+            "News feed",
+            "Chat",
+            "Notification system",
+            "Ride hailing",
+            "Payment system",
+            "Distributed cache",
+            "Search autocomplete",
+            "File storage"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "subject:java",
+      "name": "Java/Spring/concurrency revision",
+      "status": "queued",
+      "note": "Early Phase 3"
+    },
+    {
+      "id": "subject:star",
+      "name": "Behavioural (STAR)",
+      "status": "queued",
+      "note": "8 stories",
+      "topics": [
+        {
+          "group": "Stories",
+          "titles": [
+            "Story: a project I led",
+            "Story: an incident I debugged",
+            "Story: mentoring",
+            "Story: cross-team work",
+            "Story: presenting a design"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "subject:mocks",
+      "name": "Mocks & applications",
+      "status": "queued"
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex:squat",
+      "name": "Back squat",
+      "repMin": 8,
+      "repMax": 12
+    },
+    {
+      "id": "ex:bench",
+      "name": "Bench press",
+      "repMin": 8,
+      "repMax": 12
+    },
+    {
+      "id": "ex:row",
+      "name": "Barbell row",
+      "repMin": 8,
+      "repMax": 12
+    },
+    {
+      "id": "ex:ohp",
+      "name": "Overhead press",
+      "repMin": 8,
+      "repMax": 12
+    },
+    {
+      "id": "ex:rdl",
+      "name": "Romanian deadlift",
+      "repMin": 8,
+      "repMax": 12
+    },
+    {
+      "id": "ex:incline-db",
+      "name": "Incline dumbbell press",
+      "repMin": 8,
+      "repMax": 12
+    },
+    {
+      "id": "ex:pulldown",
+      "name": "Lat pulldown",
+      "repMin": 8,
+      "repMax": 12
+    },
+    {
+      "id": "ex:leg-press",
+      "name": "Leg press",
+      "repMin": 10,
+      "repMax": 15
+    },
+    {
+      "id": "ex:lateral-raise",
+      "name": "Dumbbell lateral raise",
+      "repMin": 12,
+      "repMax": 15,
+      "increment": 1
+    },
+    {
+      "id": "ex:pushup",
+      "name": "Push-ups",
+      "repMin": 8,
+      "repMax": 25,
+      "bodyweight": true
+    },
+    {
+      "id": "ex:bw-squat",
+      "name": "Bodyweight squats",
+      "repMin": 15,
+      "repMax": 30,
+      "bodyweight": true
+    },
+    {
+      "id": "ex:plank",
+      "name": "Plank",
+      "repMin": 30,
+      "repMax": 60,
+      "bodyweight": true,
+      "measure": "seconds"
+    }
+  ],
+  "workoutTemplates": [
+    {
+      "id": "tpl:full-a",
+      "name": "Full Body A",
+      "order": 0,
+      "items": [
+        {
+          "exerciseId": "ex:squat",
+          "sets": 3
+        },
+        {
+          "exerciseId": "ex:bench",
+          "sets": 3
+        },
+        {
+          "exerciseId": "ex:row",
+          "sets": 3
+        },
+        {
+          "exerciseId": "ex:ohp",
+          "sets": 2
+        },
+        {
+          "exerciseId": "ex:plank",
+          "sets": 2
+        }
+      ]
+    },
+    {
+      "id": "tpl:full-b",
+      "name": "Full Body B",
+      "order": 1,
+      "items": [
+        {
+          "exerciseId": "ex:rdl",
+          "sets": 3
+        },
+        {
+          "exerciseId": "ex:incline-db",
+          "sets": 3
+        },
+        {
+          "exerciseId": "ex:pulldown",
+          "sets": 3
+        },
+        {
+          "exerciseId": "ex:leg-press",
+          "sets": 2
+        },
+        {
+          "exerciseId": "ex:lateral-raise",
+          "sets": 2
+        }
+      ]
+    },
+    {
+      "id": "tpl:home",
+      "name": "Home session (20 min)",
+      "order": 2,
+      "items": [
+        {
+          "exerciseId": "ex:pushup",
+          "sets": 3
+        },
+        {
+          "exerciseId": "ex:bw-squat",
+          "sets": 3
+        },
+        {
+          "exerciseId": "ex:plank",
+          "sets": 3
+        }
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task:skin-active",
+      "areaId": "skin",
+      "text": "Optional: pick one gentle active, patch-test it, then add it to the product list.",
+      "dueDay": {
+        "afterStart": 28
+      }
+    },
+    {
+      "id": "task:skin-week12",
+      "areaId": "skin",
+      "text": "Compare week-0 and week-12 skin photos. No visible improvement? Book a dermatologist and log their plan.",
+      "dueDay": {
+        "afterStart": 84
+      }
+    }
+  ]
+}
